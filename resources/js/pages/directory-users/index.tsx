@@ -1,10 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import DeleteDirectoryUser from '@/components/delete-directory-user';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { create, index } from '@/routes/directory-users';
+import { create, edit, index } from '@/routes/directory-users';
 
 type DirectoryUser = {
     id: number;
@@ -46,6 +47,7 @@ type Props = {
     companies: Company[];
     departments: Department[];
     filters: Filters;
+    deletionNotice?: string | null;
     errors?: Record<string, string>;
 };
 
@@ -54,6 +56,7 @@ export default function DirectoryUsers({
     companies,
     departments,
     filters,
+    deletionNotice,
     errors = {},
 }: Props) {
     const [search, setSearch] = useState(filters.search);
@@ -119,6 +122,15 @@ export default function DirectoryUsers({
                         <Link href={create()}>Nuevo usuario</Link>
                     </Button>
                 </div>
+
+                {deletionNotice && (
+                    <div
+                        role="status"
+                        className="rounded-lg border bg-muted/40 px-4 py-3 text-sm"
+                    >
+                        {deletionNotice}
+                    </div>
+                )}
 
                 <form
                     onSubmit={applyFilters}
@@ -210,7 +222,8 @@ export default function DirectoryUsers({
                     className="overflow-hidden rounded-xl border"
                 >
                     <div className="border-b px-4 py-3 text-sm text-muted-foreground">
-                        {users.total} resultados
+                        {users.total}{' '}
+                        {users.total === 1 ? 'resultado' : 'resultados'}
                     </div>
 
                     {users.data.length === 0 ? (
@@ -250,6 +263,9 @@ export default function DirectoryUsers({
                                         <th scope="col" className="px-4 py-3">
                                             Departamento
                                         </th>
+                                        <th scope="col" className="px-4 py-3">
+                                            Acciones
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -279,6 +295,26 @@ export default function DirectoryUsers({
                                             </td>
                                             <td className="px-4 py-3">
                                                 {user.department_name}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        asChild
+                                                    >
+                                                        <Link
+                                                            href={edit(user.id)}
+                                                            aria-label={`Editar a ${user.full_name}`}
+                                                        >
+                                                            Editar
+                                                        </Link>
+                                                    </Button>
+
+                                                    <DeleteDirectoryUser
+                                                        user={user}
+                                                    />
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}

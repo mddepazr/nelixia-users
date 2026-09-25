@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Actions\DirectoryUsers\CreateDirectoryUser;
+use App\Actions\DirectoryUsers\DeleteDirectoryUser;
+use App\Actions\DirectoryUsers\UpdateDirectoryUser;
 use App\Http\Requests\StoreDirectoryUserRequest;
+use App\Http\Requests\UpdateDirectoryUserRequest;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\DirectoryUser;
@@ -59,6 +62,7 @@ class DirectoryUserController extends Controller
             ->through(fn (DirectoryUser $user): array => $this->listItem($user));
 
         return Inertia::render('directory-users/index', [
+            'deletionNotice' => $request->session()->get('deletion_notice'),
             'users' => $users,
             'companies' => Company::query()
                 ->orderBy('name')
@@ -115,6 +119,89 @@ class DirectoryUserController extends Controller
         }
 
         return redirect()->route('directory-users.index');
+    }
+
+    public function edit(DirectoryUser $directoryUser): Response
+    {
+        $directoryUser->load('department.company');
+
+        return Inertia::render('directory-users/edit', [
+            'directoryUser' => [
+                'id' => $directoryUser->id,
+                'first_name' => $directoryUser->first_name,
+                'last_name' => $directoryUser->last_name,
+                'email' => $directoryUser->email,
+                'company_id' => $directoryUser->department->company->getKey(),
+                'department_id' => $directoryUser->department->getKey(),
+                'photo_url' => Storage::disk('s3')->temporaryUrl(
+                    $directoryUser->photo_path,
+                    now()->addMinutes(15),
+                ),
+            ],
+            'companies' => Company::query()
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'departments' => Department::query()
+                ->orderBy('name')
+                ->get(['id', 'company_id', 'name']),
+        ]);
+    }
+
+    public function update(
+        UpdateDirectoryUserRequest $request,
+        DirectoryUser $directoryUser,
+        UpdateDirectoryUser $updateUser,
+    ): RedirectResponse {
+        $photo = $request->file('photo');
+
+        if ($photo !== null && ! $photo instanceof UploadedFile) {
+            throw ValidationException::withMessages([
+                'photo' => 'Seleccioná una fotografía válida.',
+            ]);
+        }
+
+        try {
+            $updateUser->handle(
+                directoryUser: $directoryUser,
+                firstName: $request->string('first_name')->trim()->toString(),
+                lastName: $request->string('last_name')->trim()->toString(),
+                email: $request->string('email')->toString(),
+                departmentId: $request->integer('department_id'),
+                photo: $photo,
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+
+            throw ValidationException::withMessages([
+                'save' => 'No se pudo actualizar el usuario. Intentá nuevamente.',
+            ]);
+        }
+
+        return redirect()->route('directory-users.index');
+    }
+
+    public function destroy(
+        DirectoryUser $directoryUser,
+        DeleteDirectoryUser $deleteUser,
+    ): RedirectResponse {
+        try {
+            $photoDeleted = $deleteUser->handle($directoryUser);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            throw ValidationException::withMessages([
+                'deletion' => 'No se pudo completar la eliminación. Actualizá el listado e intentá nuevamente.',
+            ]);
+        }
+
+        return redirect()
+            ->route('directory-users.index')
+            ->with(
+                'deletion_notice',
+                $photoDeleted
+                    ? 'Usuario y fotografía eliminados correctamente.'
+                    : 'Usuario eliminado. La eliminación de su fotografía quedó pendiente de reintento.',
+            );
     }
 
     /** @return array<string, int|string> */
