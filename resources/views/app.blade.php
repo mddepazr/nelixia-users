@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
+        {{-- Aplica el tema antes de mostrar la página para evitar destellos. --}}
         <script>
             (function() {
                 const appearance = '{{ $appearance ?? "system" }}';
@@ -19,27 +19,27 @@
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Mantiene el fondo del tema mientras carga el CSS y evita el rebote vertical. --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: #faf7f2;
+                overscroll-behavior-y: none;
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #191c17;
             }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="icon" href="/images/nelixia-logo.png" type="image/png">
+        <link rel="apple-touch-icon" href="/images/nelixia-logo.png">
 
         @fonts
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ config('app.name', 'Nelixia') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
