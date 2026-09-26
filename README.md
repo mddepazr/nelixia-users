@@ -44,17 +44,17 @@ Los puertos 8000, 5173, 9000, 9001, 1025 y 8025 deben estar disponibles. Usar co
 
 ## Instalación rápida
 
-Desde una terminal, clonar la rama que contiene el instalador:
+Desde una terminal, clonar el repositorio:
 
 ```sh
-git clone --branch feat/nelixia-ui https://github.com/mddepazr/nelixia-users.git
+git clone https://github.com/mddepazr/nelixia-users.git
 cd nelixia-users
 composer setup
 php artisan app:create-admin
 composer dev
 ```
 
-Antes de compartir estas instrucciones, los scripts y este README deben estar confirmados y publicados en esa rama. Cuando los cambios estén integrados en `main`, se puede omitir `--branch feat/nelixia-ui`.
+El comando anterior clona `main`, que contiene el instalador y esta guía.
 
 Si el repositorio es privado, el evaluador necesita acceso mediante su propia cuenta de GitHub. No incluir tokens de acceso en el comando ni en el README.
 
