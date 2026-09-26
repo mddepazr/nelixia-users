@@ -1,6 +1,9 @@
 services:
     minio:
-        image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+        image: nelixia/minio:RELEASE.2025-09-07T16-13-09Z
+        build:
+            context: ./docker/minio
+        pull_policy: never
         command: server /data --console-address ":9001"
         restart: unless-stopped
 
