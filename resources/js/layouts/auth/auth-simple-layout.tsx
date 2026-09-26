@@ -1,5 +1,4 @@
 import { Link } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -9,30 +8,51 @@ export default function AuthSimpleLayout({
     description,
 }: AuthLayoutProps) {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col items-center gap-4">
-                        <Link
-                            href={home()}
-                            className="flex flex-col items-center gap-2 font-medium"
-                        >
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
-                            <span className="sr-only">{title}</span>
-                        </Link>
+        <main className="flex min-h-svh items-center justify-center bg-sidebar px-4 py-10 sm:px-6">
+            <div className="w-full max-w-md">
+                <div className="mb-8 flex justify-center">
+                    <Link
+                        href={home()}
+                        className="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                        aria-label="Nelixia: inicio"
+                    >
+                        <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-sidebar-border bg-white p-1">
+                            <img
+                                src="/images/nelixia-logo.png"
+                                alt=""
+                                width={56}
+                                height={56}
+                                className="size-full object-contain"
+                            />
+                        </div>
 
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
-                            <p className="text-center text-sm text-muted-foreground">
-                                {description}
+                        <div className="text-sidebar-foreground">
+                            <p className="text-2xl font-semibold tracking-tight">
+                                Nelixia
+                            </p>
+                            <p className="text-sm">
+                                Administración de usuarios
                             </p>
                         </div>
-                    </div>
-                    {children}
+                    </Link>
                 </div>
+
+                <section className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm sm:p-8">
+                    <div className="mb-8 space-y-2">
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            {title}
+                        </h1>
+
+                        {description && (
+                            <p className="text-sm leading-relaxed text-muted-foreground">
+                                {description}
+                            </p>
+                        )}
+                    </div>
+
+                    {children}
+                </section>
             </div>
-        </div>
+        </main>
     );
 }

@@ -5,7 +5,7 @@ services:
         restart: unless-stopped
 
         ports:
-            # Acceso únicamente desde esta computadora.
+            # Acceso solo desde esta computadora.
             - '127.0.0.1:9000:9000'
             - '127.0.0.1:9001:9001'
 
@@ -14,8 +14,25 @@ services:
             MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Configura MINIO_ROOT_PASSWORD en .env}
 
         volumes:
-            # Conserva los archivos al detener o recrear el contenedor.
+            # Conserva los archivos al recrear el contenedor.
             - minio_data:/data
+
+    mailpit:
+        image: axllent/mailpit:v1.27.4
+        restart: unless-stopped
+
+        ports:
+            # Buzon web y recepcion SMTP local.
+            - '127.0.0.1:8025:8025'
+            - '127.0.0.1:1025:1025'
+
+        environment:
+            MP_DATABASE: /data/mailpit.db
+            MP_MAX_MESSAGES: 500
+
+        volumes:
+            - mailpit_data:/data
 
 volumes:
     minio_data:
+    mailpit_data:

@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
 test('login screen can be rendered', function () {
@@ -63,15 +62,76 @@ test('users can logout', function () {
     $this->assertGuest();
 });
 
-test('users are rate limited', function () {
-    $user = User::factory()->create();
+test('login displays a throttle message and allows access after the cooldown', function () {
+    $this->freezeTime();
 
-    RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
-
-    $response = $this->post(route('login.store'), [
-        'email' => $user->email,
-        'password' => 'wrong-password',
+    $user = User::factory()->create([
+        'is_admin' => true,
     ]);
 
-    $response->assertTooManyRequests();
+    for ($attempt = 0; $attempt < 5; $attempt++) {
+        $this->from(route('login'))
+            ->post(route('login.store'), [
+                'email' => $user->email,
+                'password' => 'wrong-password',
+            ])
+            ->assertSessionHasErrors('email');
+    }
+
+    // Incluso la contraseña correcta debe rechazarse durante el bloqueo.
+    $response = $this->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ], [
+            'X-Inertia' => 'true',
+        ]);
+
+    $response
+        ->assertStatus(303)
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors([
+            'email' => __('auth.throttle', [
+                'seconds' => 60,
+                'minutes' => 1,
+            ]),
+        ])
+        ->assertSessionMissing('_old_input.password');
+
+    $this->assertGuest();
+
+    $this->travel(61)->seconds();
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('dashboard', absolute: false));
+
+    $this->assertAuthenticatedAs($user);
+});
+
+test('JSON login requests retain the 429 response when rate limited', function () {
+    $this->freezeTime();
+
+    $user = User::factory()->create();
+
+    for ($attempt = 0; $attempt < 5; $attempt++) {
+        $this->postJson(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])->assertUnprocessable();
+    }
+
+    $this->postJson(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])
+        ->assertTooManyRequests()
+        ->assertHeader('Retry-After', '60')
+        ->assertJsonPath('message', __('auth.throttle', [
+            'seconds' => 60,
+            'minutes' => 1,
+        ]));
+
+    $this->assertGuest();
 });

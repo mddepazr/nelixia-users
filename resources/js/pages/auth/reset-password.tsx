@@ -1,10 +1,12 @@
 import { Form, Head } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { login } from '@/routes';
 import { update } from '@/routes/password';
 
 type Props = {
@@ -16,81 +18,117 @@ type Props = {
 export default function ResetPassword({ token, email, passwordRules }: Props) {
     return (
         <>
-            <Head title="Reset password" />
+            <Head title="Restablecer contraseña" />
 
             <Form
                 {...update.form()}
                 transform={(data) => ({ ...data, token, email })}
                 resetOnSuccess={['password', 'password_confirmation']}
+                className="flex flex-col gap-6"
             >
                 {({ processing, errors }) => (
-                    <div className="grid gap-6">
+                    <>
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">Correo electrónico</Label>
+
                             <Input
                                 id="email"
                                 type="email"
                                 name="email"
-                                autoComplete="email"
+                                autoComplete="username"
                                 value={email}
-                                className="mt-1 block w-full"
+                                className="h-11 bg-muted"
                                 readOnly
+                                aria-invalid={Boolean(errors.email)}
+                                aria-describedby={
+                                    errors.email ? 'email-error' : undefined
+                                }
                             />
-                            <InputError
-                                message={errors.email}
-                                className="mt-2"
-                            />
+
+                            <div id="email-error">
+                                <InputError message={errors.email} />
+                            </div>
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">Nueva contraseña</Label>
+
                             <PasswordInput
                                 id="password"
                                 name="password"
+                                required
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
+                                className="h-11"
                                 autoFocus
-                                placeholder="Password"
+                                placeholder="Ingresá tu nueva contraseña"
                                 passwordrules={passwordRules}
+                                aria-invalid={Boolean(errors.password)}
+                                aria-describedby={
+                                    errors.password
+                                        ? 'password-error'
+                                        : undefined
+                                }
                             />
-                            <InputError message={errors.password} />
+
+                            <div id="password-error">
+                                <InputError message={errors.password} />
+                            </div>
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="password_confirmation">
-                                Confirm password
+                                Confirmar contraseña
                             </Label>
+
                             <PasswordInput
                                 id="password_confirmation"
                                 name="password_confirmation"
+                                required
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
-                                placeholder="Confirm password"
+                                className="h-11"
+                                placeholder="Repetí la nueva contraseña"
                                 passwordrules={passwordRules}
+                                aria-invalid={Boolean(
+                                    errors.password_confirmation,
+                                )}
+                                aria-describedby={
+                                    errors.password_confirmation
+                                        ? 'password-confirmation-error'
+                                        : undefined
+                                }
                             />
-                            <InputError
-                                message={errors.password_confirmation}
-                                className="mt-2"
-                            />
+
+                            <div id="password-confirmation-error">
+                                <InputError
+                                    message={errors.password_confirmation}
+                                />
+                            </div>
                         </div>
 
                         <Button
                             type="submit"
-                            className="mt-4 w-full"
+                            className="h-11 w-full"
                             disabled={processing}
+                            aria-busy={processing}
                             data-test="reset-password-button"
                         >
                             {processing && <Spinner />}
-                            Reset password
+                            {processing
+                                ? 'Guardando…'
+                                : 'Guardar nueva contraseña'}
                         </Button>
-                    </div>
+                    </>
                 )}
             </Form>
+
+            <div className="mt-6 text-center text-sm">
+                <TextLink href={login()}>Volver a iniciar sesión</TextLink>
+            </div>
         </>
     );
 }
 
 ResetPassword.layout = {
-    title: 'Reset password',
-    description: 'Please enter your new password below',
+    title: 'Restablecer contraseña',
+    description: 'Elegí una nueva contraseña y repetila para confirmarla.',
 };

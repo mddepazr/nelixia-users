@@ -14,22 +14,36 @@ export function NavMain({ items }: { items: NavItem[] }) {
 
     return (
         <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
-            <SidebarMenu>
-                {items.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={isCurrentUrl(item.href)}
-                            tooltip={{ children: item.title }}
-                        >
-                            <Link href={item.href} prefetch>
-                                {item.icon && <item.icon />}
-                                <span>{item.title}</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                ))}
+            <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider text-sidebar-foreground/80 uppercase">
+                Administración
+            </SidebarGroupLabel>
+
+            <SidebarMenu className="gap-1">
+                {items.map((item) => {
+                    const active = isCurrentUrl(item.href);
+
+                    return (
+                        <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                                asChild
+                                isActive={active}
+                                tooltip={{ children: item.title }}
+                                className="h-10 rounded-lg data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground"
+                            >
+                                <Link
+                                    href={item.href}
+                                    aria-current={active ? 'page' : undefined}
+                                    prefetch
+                                >
+                                    {item.icon && (
+                                        <item.icon aria-hidden="true" />
+                                    )}
+                                    <span>{item.title}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    );
+                })}
             </SidebarMenu>
         </SidebarGroup>
     );
