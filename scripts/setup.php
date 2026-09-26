@@ -7,7 +7,6 @@ use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use Dotenv\Dotenv;
 use Illuminate\Contracts\Console\Kernel;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Process\Process;
 
 require dirname(__DIR__).'/vendor/autoload.php';
@@ -262,18 +261,8 @@ try {
     $app->make(Kernel::class)->bootstrap();
 
     if (! User::query()->where('is_admin', true)->exists()) {
-        echo PHP_EOL.'Creá el primer administrador:'.PHP_EOL;
-
-        $result = $app->handleCommand(new ArgvInput([
-            'artisan',
-            'app:create-admin',
-        ]));
-
-        if ($result !== 0) {
-            throw new RuntimeException(
-                'No se creó el administrador. Podés ejecutar composer setup otra vez.',
-            );
-        }
+        echo PHP_EOL.'Falta crear el primer administrador.'.PHP_EOL;
+        echo 'Ejecutá después: php artisan app:create-admin'.PHP_EOL;
     } else {
         echo PHP_EOL.'Ya existe un administrador; se conserva.'.PHP_EOL;
     }

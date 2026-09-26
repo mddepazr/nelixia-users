@@ -8,19 +8,19 @@ Laravel se ejecuta en el equipo local. Docker ejecuta MinIO y Mailpit.
 
 - Funcionalidad CRUD y permisos verificados mediante pruebas automatizadas y comprobaciones manuales.
 - Última revisión completa reportada antes de incorporar los scripts de instalación: 56 pruebas aprobadas, 3 omitidas y 272 aserciones. Las omitidas corresponden a autenticación de dos factores desactivada.
-- `composer setup` y `composer dev` ejecutados correctamente sobre la instalación existente en Windows 11 con PHP 8.4.25 y Node.js 24.21.0.
-- Pendiente: instalación desde cero en otro Windows y en Linux, incluyendo creación inicial de credenciales, bucket y administrador. Los scripts están preparados para ambos sistemas; esa compatibilidad todavía requiere verificación práctica.
+- `composer setup` y `composer dev` ejecutados correctamente sobre una instalación existente en Windows 11 con PHP 8.4.25 y Node.js 24.21.0. En un clon separado se verificaron MinIO, bucket, migraciones, catálogo y build; la creación del primer administrador funcionó al ejecutar el comando directamente.
+- Pendiente: instalación desde cero en otro Windows y en Linux, incluyendo creación inicial de credenciales y bucket. Esa compatibilidad todavía requiere verificación práctica.
 
 ## Requisitos previos
 
-| Herramienta | Requisito |
-| --- | --- |
-| Git | Instalado y con acceso al repositorio |
-| PHP | Se recomienda PHP 8.4.x; Pest 5 exige al menos PHP 8.4 |
-| Composer | Versión 2.x, disponible en la terminal |
-| Node.js | Se recomienda Node.js 24.x, con npm |
-| Docker | Docker Desktop en Windows; Docker Engine o Desktop en Linux |
-| Docker Compose | Plugin que permita ejecutar `docker compose` |
+| Herramienta         | Requisito                                                            |
+| ------------------- | -------------------------------------------------------------------- |
+| Git                 | Instalado y con acceso al repositorio                                |
+| PHP                 | Se recomienda PHP 8.4.x; Pest 5 exige al menos PHP 8.4               |
+| Composer            | Versión 2.x, disponible en la terminal                               |
+| Node.js             | Se recomienda Node.js 24.x, con npm                                  |
+| Docker              | Docker Desktop en Windows; Docker Engine o Desktop en Linux          |
+| Docker Compose      | Plugin que permita ejecutar `docker compose`                         |
 | Conexión a Internet | Necesaria para descargar dependencias, imágenes y recursos del build |
 
 El proyecto declara PHP `^8.3` para la aplicación, pero la instalación incluye dependencias de desarrollo que requieren PHP 8.4. `composer install` verifica las restricciones exactas de `composer.lock`. No usar `--ignore-platform-reqs`.
@@ -50,6 +50,7 @@ Desde una terminal, clonar la rama que contiene el instalador:
 git clone --branch feat/nelixia-ui https://github.com/mddepazr/nelixia-users.git
 cd nelixia-users
 composer setup
+php artisan app:create-admin
 composer dev
 ```
 
@@ -68,9 +69,11 @@ Si el repositorio es privado, el evaluador necesita acceso mediante su propia cu
 7. Espera a MinIO, comprueba el bucket y lo crea si no existe.
 8. Limpia la caché de configuración, ejecuta migraciones pendientes y el catálogo inicial.
 9. Ejecuta `npm ci` y compila el frontend.
-10. Solicita los datos del primer administrador si todavía no existe uno.
+10. Indica cómo crear el primer administrador si todavía no existe uno.
 
 La contraseña del administrador debe tener al menos 12 caracteres, mayúsculas, minúsculas y números. No existe una contraseña administrativa predeterminada.
+
+En una instalación nueva, ejecutá `php artisan app:create-admin` desde la terminal después de `composer setup`. El comando solicita nombre, correo y contraseña. Si ya existe un administrador, no hace falta volver a ejecutarlo. La solicitud interactiva se ejecuta por separado porque al invocarla dentro de `composer setup` se abortó en la prueba con PowerShell.
 
 El instalador está limitado a `APP_ENV=local`, `DB_CONNECTION=sqlite`, `FILESYSTEM_DISK=s3` y `AWS_ENDPOINT=http://127.0.0.1:9000`. `DB_DATABASE` y `DB_URL` deben estar ausentes o vacíos. Las configuraciones personalizadas se conservan, pero requieren preparación manual.
 
@@ -86,14 +89,14 @@ composer dev
 
 Este comando inicia los contenedores y mantiene activos el servidor PHP, la cola y Vite. **Es normal que no devuelva el prompt:** la terminal debe permanecer abierta mientras se usa la aplicación.
 
-| Servicio | Dirección o puerto |
-| --- | --- |
-| Aplicación | http://127.0.0.1:8000 |
-| Mailpit, buzón local de pruebas | http://127.0.0.1:8025 |
-| Consola MinIO | http://127.0.0.1:9001 |
-| API S3 de MinIO | http://127.0.0.1:9000 |
-| SMTP de Mailpit | 127.0.0.1:1025 |
-| Vite, recursos de desarrollo | Puerto 5173; no es la URL principal de la aplicación |
+| Servicio                        | Dirección o puerto                                   |
+| ------------------------------- | ---------------------------------------------------- |
+| Aplicación                      | http://127.0.0.1:8000                                |
+| Mailpit, buzón local de pruebas | http://127.0.0.1:8025                                |
+| Consola MinIO                   | http://127.0.0.1:9001                                |
+| API S3 de MinIO                 | http://127.0.0.1:9000                                |
+| SMTP de Mailpit                 | 127.0.0.1:1025                                       |
+| Vite, recursos de desarrollo    | Puerto 5173; no es la URL principal de la aplicación |
 
 Para detener PHP, Vite y la cola, presionar `Ctrl+C`. Los contenedores permanecen activos. Para detenerlos también:
 
@@ -107,16 +110,16 @@ Los volúmenes conservan las fotografías y los mensajes de Mailpit. No ejecutar
 
 `.env` contiene la configuración particular de cada equipo y no se versiona. `.env.example` es la plantilla compartida.
 
-| Configuración | Uso |
-| --- | --- |
-| `APP_KEY` | Clave de la aplicación; se genera solo si está vacía |
-| `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD` | Acceso administrativo a MinIO |
+| Configuración                                | Uso                                                                                            |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `APP_KEY`                                    | Clave de la aplicación; se genera solo si está vacía                                           |
+| `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`     | Acceso administrativo a MinIO                                                                  |
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Credenciales del filesystem S3; en una instalación nueva se completan con las locales de MinIO |
-| `AWS_BUCKET` | Bucket; valor de ejemplo `nelixia-users` |
-| `AWS_ENDPOINT` | Endpoint local de MinIO |
-| `AWS_USE_PATH_STYLE_ENDPOINT` | Debe mantenerse en `true` para esta configuración |
-| `MAIL_HOST`, `MAIL_PORT` | Mailpit local: `127.0.0.1`, `1025` |
-| `APP_URL` | URL local usada también para enlaces de recuperación |
+| `AWS_BUCKET`                                 | Bucket; valor de ejemplo `nelixia-users`                                                       |
+| `AWS_ENDPOINT`                               | Endpoint local de MinIO                                                                        |
+| `AWS_USE_PATH_STYLE_ENDPOINT`                | Debe mantenerse en `true` para esta configuración                                              |
+| `MAIL_HOST`, `MAIL_PORT`                     | Mailpit local: `127.0.0.1`, `1025`                                                             |
+| `APP_URL`                                    | URL local usada también para enlaces de recuperación                                           |
 
 Para entrar a la consola MinIO, consultar localmente las variables `MINIO_ROOT_USER` y `MINIO_ROOT_PASSWORD` del `.env`. No compartir ese archivo.
 
@@ -207,18 +210,18 @@ Las empresas tienen departamentos y cada registro del directorio pertenece a un 
 
 ## Solución de problemas
 
-| Problema | Acción |
-| --- | --- |
-| Docker no responde | Iniciar Docker y comprobar `docker info` |
-| Puerto ocupado | Detener la instancia anterior del servidor o el servicio que usa ese puerto |
-| Composer indica una extensión o versión incompatible | Revisar `php -v`, `php --ini` y `php -m`; habilitar la extensión en el PHP de la terminal |
-| MinIO rechaza credenciales | Revisar la coherencia de las credenciales de MinIO y S3 en `.env`; no borrar volúmenes como solución |
-| Configuración antigua | Ejecutar `php artisan config:clear` y reiniciar `composer dev` |
-| Error al recibir una fotografía | Arrancar con `composer dev` y comprobar permisos de `storage/app/php-uploads` |
-| No aparece el correo | Revisar que exista la cuenta de acceso, los valores SMTP y `docker compose ps` |
-| No se carga el frontend | Mantener Vite activo con `composer dev`; revisar su salida en la terminal |
-| Advertencia de `fontaine` | En las ejecuciones verificadas no bloquea el build; se refiere a una optimización opcional de fuentes |
-| Instalación detenida a mitad | Corregir el error indicado y repetir `composer setup` |
+| Problema                                             | Acción                                                                                                |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Docker no responde                                   | Iniciar Docker y comprobar `docker info`                                                              |
+| Puerto ocupado                                       | Detener la instancia anterior del servidor o el servicio que usa ese puerto                           |
+| Composer indica una extensión o versión incompatible | Revisar `php -v`, `php --ini` y `php -m`; habilitar la extensión en el PHP de la terminal             |
+| MinIO rechaza credenciales                           | Revisar la coherencia de las credenciales de MinIO y S3 en `.env`; no borrar volúmenes como solución  |
+| Configuración antigua                                | Ejecutar `php artisan config:clear` y reiniciar `composer dev`                                        |
+| Error al recibir una fotografía                      | Arrancar con `composer dev` y comprobar permisos de `storage/app/php-uploads`                         |
+| No aparece el correo                                 | Revisar que exista la cuenta de acceso, los valores SMTP y `docker compose ps`                        |
+| No se carga el frontend                              | Mantener Vite activo con `composer dev`; revisar su salida en la terminal                             |
+| Advertencia de `fontaine`                            | En las ejecuciones verificadas no bloquea el build; se refiere a una optimización opcional de fuentes |
+| Instalación detenida a mitad                         | Corregir el error indicado y repetir `composer setup`                                                 |
 
 Para consultar los servicios:
 
