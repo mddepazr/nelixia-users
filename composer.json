@@ -46,11 +46,13 @@
     "scripts": {
         "setup": [
             "Composer\\Config::disableProcessTimeout",
+            "@php scripts/preflight.php",
             "composer install",
             "@php scripts/setup.php"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
+            "@php scripts/preflight.php",
             "docker compose up -d minio mailpit",
             "npx concurrently --kill-others -c \"#93c5fd,#c4b5fd,#fdba74\" \"php scripts/serve.php\" \"php artisan queue:listen --tries=1 --timeout=0\" \"npm run dev\" --names=server,queue,vite"
         ],

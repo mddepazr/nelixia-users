@@ -44,7 +44,25 @@ Los puertos 8000, 5173, 9000, 9001, 1025 y 8025 deben estar disponibles. Usar co
 
 ## Instalación rápida
 
-Desde una terminal, clonar el repositorio:
+En Windows, usar una carpeta propia cuya ruta completa no tenga tildes ni otros
+caracteres no ASCII. Por ejemplo, desde PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force 'C:\Dev' | Out-Null
+Set-Location 'C:\Dev'
+git clone https://github.com/mddepazr/nelixia-users.git
+Set-Location 'C:\Dev\nelixia-users'
+composer setup
+php artisan app:create-admin
+composer dev
+```
+
+Si Windows no permite crear `C:\Dev`, elegí otra carpeta donde tengas permiso de
+escritura y cuya ruta completa contenga solamente caracteres ASCII. Una ruta
+como `C:\Users\Saraí\Projects` no sirve para iniciar el servidor PHP local.
+El instalador comprueba la ruta antes de comenzar.
+
+En Linux, desde una terminal:
 
 ```sh
 git clone https://github.com/mddepazr/nelixia-users.git
