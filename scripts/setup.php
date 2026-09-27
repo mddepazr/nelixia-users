@@ -170,6 +170,8 @@ try {
     echo PHP_EOL.'Iniciando MinIO y Mailpit...'.PHP_EOL;
 
     runSetupProcess(['docker', 'compose', 'config', '--quiet']);
+    echo 'Preparando MinIO desde su código fuente; la primera vez puede tardar varios minutos...'.PHP_EOL;
+    runSetupProcess(['docker', 'compose', 'build', 'minio']);
     runSetupProcess(['docker', 'compose', 'up', '-d', 'minio', 'mailpit']);
 
     $client = new S3Client([

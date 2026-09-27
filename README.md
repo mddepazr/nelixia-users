@@ -9,7 +9,7 @@ Laravel se ejecuta en el equipo local. Docker ejecuta MinIO y Mailpit.
 - Funcionalidad CRUD y permisos verificados mediante pruebas automatizadas y comprobaciones manuales.
 - Última revisión completa reportada antes de incorporar los scripts de instalación: 56 pruebas aprobadas, 3 omitidas y 272 aserciones. Las omitidas corresponden a autenticación de dos factores desactivada.
 - `composer setup` y `composer dev` ejecutados correctamente sobre una instalación existente en Windows 11 con PHP 8.4.25 y Node.js 24.21.0. En un clon separado se verificaron MinIO, bucket, migraciones, catálogo y build; la creación del primer administrador funcionó al ejecutar el comando directamente.
-- Pendiente: instalación desde cero en otro Windows y en Linux, incluyendo creación inicial de credenciales y bucket. Esa compatibilidad todavía requiere verificación práctica.
+- Pendiente: repetir la instalación desde cero en otro Windows con la imagen de MinIO compilada localmente y en Linux. Esa compatibilidad todavía requiere verificación práctica.
 
 ## Requisitos previos
 
@@ -65,7 +65,7 @@ Si el repositorio es privado, el evaluador necesita acceso mediante su propia cu
 3. Copia `.env.example` a `.env` únicamente si no existe.
 4. Completa las claves vacías de la aplicación y MinIO. Conserva valores existentes.
 5. Crea la carpeta temporal de cargas y el archivo SQLite si faltan.
-6. Inicia MinIO y Mailpit mediante Docker Compose.
+6. Compila MinIO Community desde su código fuente oficial, con la versión fijada en `docker/minio/Dockerfile`, y lo inicia junto con Mailpit mediante Docker Compose. El primer build puede tardar varios minutos; Docker reutiliza sus capas en instalaciones posteriores.
 7. Espera a MinIO, comprueba el bucket y lo crea si no existe.
 8. Limpia la caché de configuración, ejecuta migraciones pendientes y el catálogo inicial.
 9. Ejecuta `npm ci` y compila el frontend.
@@ -78,6 +78,8 @@ En una instalación nueva, ejecutá `php artisan app:create-admin` desde la term
 El instalador está limitado a `APP_ENV=local`, `DB_CONNECTION=sqlite`, `FILESYSTEM_DISK=s3` y `AWS_ENDPOINT=http://127.0.0.1:9000`. `DB_DATABASE` y `DB_URL` deben estar ausentes o vacíos. Las configuraciones personalizadas se conservan, pero requieren preparación manual.
 
 Volver a ejecutar `composer setup` reinstala las dependencias del frontend, compila y ejecuta las migraciones y el seeder. No utiliza `migrate:fresh`, no elimina volúmenes ni regenera una `APP_KEY` que ya tenga valor. Si falla un paso, se detiene; los pasos ya completados permanecen aplicados. Corregir la causa y repetir el comando.
+
+MinIO ya no se descarga desde Quay. El build de Docker usa la imagen oficial `golang:1.24.6-alpine3.22`, obtiene el código fuente de MinIO en la versión `RELEASE.2025-09-07T16-13-09Z` y guarda el ejecutable en una imagen local. Requiere conexión a Docker Hub, Alpine y el repositorio de módulos Go durante la primera compilación. `composer dev` utiliza la imagen ya compilada por `composer setup`.
 
 ## Ejecución diaria
 
@@ -222,6 +224,8 @@ Las empresas tienen departamentos y cada registro del directorio pertenece a un 
 | No se carga el frontend                              | Mantener Vite activo con `composer dev`; revisar su salida en la terminal                             |
 | Advertencia de `fontaine`                            | En las ejecuciones verificadas no bloquea el build; se refiere a una optimización opcional de fuentes |
 | Instalación detenida a mitad                         | Corregir el error indicado y repetir `composer setup`                                                 |
+
+Si `app:create-admin` muestra `no such table: users`, `composer setup` no llegó a las migraciones. Repetí la instalación y esperá el mensaje «Instalación terminada» antes de crear el administrador.
 
 Para consultar los servicios:
 
