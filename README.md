@@ -7,9 +7,9 @@ Laravel se ejecuta en el equipo local. Docker ejecuta MinIO y Mailpit.
 ## Estado de verificación
 
 - Funcionalidad CRUD y permisos verificados mediante pruebas automatizadas y comprobaciones manuales.
-- Última revisión completa reportada antes de incorporar los scripts de instalación: 56 pruebas aprobadas, 3 omitidas y 272 aserciones. Las omitidas corresponden a autenticación de dos factores desactivada.
-- `composer setup` y `composer dev` ejecutados correctamente sobre una instalación existente en Windows 11 con PHP 8.4.25 y Node.js 24.21.0. En un clon separado se verificaron MinIO, bucket, migraciones, catálogo y build; la creación del primer administrador funcionó al ejecutar el comando directamente.
-- Pendiente: repetir la instalación desde cero en otro Windows con la imagen de MinIO compilada localmente y en Linux. Esa compatibilidad todavía requiere verificación práctica.
+- En Ubuntu dentro de WSL 2 se completó una instalación desde cero con PHP 8.4.1, Node.js 24.21.0 y Docker Desktop. `composer ci:check` aprobó 56 pruebas con 272 aserciones; 3 pruebas se omitieron porque la autenticación de dos factores está desactivada.
+- En otro equipo con Windows 11, `composer setup` y `composer dev` funcionaron después de mover el proyecto a una ruta sin caracteres no ASCII. El arranque local, MinIO y la compilación del frontend quedaron verificados.
+- En WSL 2 se comprobó manualmente la creación, edición y eliminación de usuarios, el recorte cuadrado de fotografías, su almacenamiento y limpieza en MinIO y la persistencia tras reiniciar. No se ha repetido la instalación en un Linux nativo fuera de WSL.
 
 ## Requisitos previos
 
@@ -44,7 +44,25 @@ Los puertos 8000, 5173, 9000, 9001, 1025 y 8025 deben estar disponibles. Usar co
 
 ## Instalación rápida
 
-Desde una terminal, clonar el repositorio:
+En Windows, usar una carpeta propia cuya ruta completa no tenga tildes ni otros
+caracteres no ASCII. Por ejemplo, desde PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force 'C:\Dev' | Out-Null
+Set-Location 'C:\Dev'
+git clone https://github.com/mddepazr/nelixia-users.git
+Set-Location 'C:\Dev\nelixia-users'
+composer setup
+php artisan app:create-admin
+composer dev
+```
+
+Si Windows no permite crear `C:\Dev`, elegí otra carpeta donde tengas permiso de
+escritura y cuya ruta completa contenga solamente caracteres ASCII. Una ruta
+como `C:\Users\Saraí\Projects` no sirve para iniciar el servidor PHP local.
+El instalador comprueba la ruta antes de comenzar.
+
+En Linux, desde una terminal:
 
 ```sh
 git clone https://github.com/mddepazr/nelixia-users.git
