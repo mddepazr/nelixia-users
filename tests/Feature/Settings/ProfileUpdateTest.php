@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Company;
+use App\Models\DirectoryUser;
 use App\Models\User;
 
 test('profile page is displayed', function () {
@@ -65,6 +67,27 @@ test('user can delete their account', function () {
 
     $this->assertGuest();
     expect($user->fresh())->toBeNull();
+});
+
+test('deleting an account keeps directory users intact', function () {
+    $administrator = User::factory()->create(['is_admin' => true]);
+    $company = Company::create(['name' => 'Nelixia']);
+    $department = $company->departments()->create(['name' => 'Tecnología']);
+
+    $directoryUser = DirectoryUser::create([
+        'first_name' => 'Ana',
+        'last_name' => 'Prueba',
+        'email' => 'ana@example.com',
+        'department_id' => $department->getKey(),
+        'photo_path' => 'user-photos/ana.jpg',
+    ]);
+
+    $this->actingAs($administrator)
+        ->delete(route('profile.destroy'), ['password' => 'password'])
+        ->assertRedirect(route('home'));
+
+    expect($administrator->fresh())->toBeNull();
+    expect($directoryUser->fresh())->not->toBeNull();
 });
 
 test('correct password must be provided to delete account', function () {
