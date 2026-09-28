@@ -7,14 +7,14 @@ test('guests visiting home are redirected to login', function () {
         ->assertRedirect(route('login'));
 });
 
-test('administrators visiting home are redirected to the user directory', function () {
+test('administrators visiting home are redirected to the dashboard', function () {
     $administrator = User::factory()->create([
         'is_admin' => true,
     ]);
 
     $this->actingAs($administrator)
         ->get(route('home'))
-        ->assertRedirect(route('directory-users.index'));
+        ->assertRedirect(route('dashboard'));
 });
 
 test('non-admin users cannot access home', function () {

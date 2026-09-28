@@ -41,7 +41,7 @@ export function AppSidebar() {
                             className="hover:bg-sidebar-accent/60"
                         >
                             <Link
-                                href={directoryUsersIndex()}
+                                href={dashboard()}
                                 aria-label="Nelixia: administración de usuarios"
                                 prefetch
                             >
