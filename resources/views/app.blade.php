@@ -31,8 +31,9 @@
             }
         </style>
 
-        <link rel="icon" href="/images/nelixia-logo.png" type="image/png">
-        <link rel="apple-touch-icon" href="/images/nelixia-logo.png">
+        <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+        <link rel="alternate icon" href="/favicon.ico?v=2" type="image/x-icon">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
 
         @fonts
 

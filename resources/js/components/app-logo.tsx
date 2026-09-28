@@ -3,7 +3,7 @@ export default function AppLogo() {
         <>
             <div className="flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-sidebar-border bg-white">
                 <img
-                    src="/images/nelixia-logo.png"
+                    src="/images/nelixia-mark.svg"
                     alt=""
                     width={32}
                     height={32}

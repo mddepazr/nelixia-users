@@ -13,27 +13,19 @@ export default function AuthSimpleLayout({
                 <div className="mb-8 flex justify-center">
                     <Link
                         href={home()}
-                        className="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                        className="flex flex-col items-center gap-1 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                         aria-label="Nelixia: inicio"
                     >
-                        <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-sidebar-border bg-white p-1">
-                            <img
-                                src="/images/nelixia-logo.png"
-                                alt=""
-                                width={56}
-                                height={56}
-                                className="size-full object-contain"
-                            />
-                        </div>
-
-                        <div className="text-sidebar-foreground">
-                            <p className="text-2xl font-semibold tracking-tight">
-                                Nelixia
-                            </p>
-                            <p className="text-sm">
-                                Administración de usuarios
-                            </p>
-                        </div>
+                        <img
+                            src="/images/nelixia-logo.svg"
+                            alt="Nelixia"
+                            width={154}
+                            height={112}
+                            className="h-28 w-auto object-contain"
+                        />
+                        <span className="text-sm text-sidebar-foreground/80">
+                            Administración de usuarios
+                        </span>
                     </Link>
                 </div>
 
