@@ -4,6 +4,7 @@ namespace App\Actions\DirectoryUsers;
 
 use App\Models\DirectoryUser;
 use App\Models\PendingPhotoDeletion;
+use App\Services\DirectoryAudit;
 use App\Services\UserPhotoCleanup;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -12,6 +13,7 @@ class DeleteDirectoryUser
 {
     public function __construct(
         private readonly UserPhotoCleanup $cleanup,
+        private readonly DirectoryAudit $audit,
     ) {}
 
     /**
@@ -24,6 +26,7 @@ class DeleteDirectoryUser
                 ->whereKey($directoryUser->id)
                 ->lockForUpdate()
                 ->firstOrFail();
+            $snapshot = $this->audit->snapshot($currentUser);
 
             // La referencia al archivo queda guardada antes de borrar al usuario.
             $pending = PendingPhotoDeletion::firstOrCreate([
@@ -33,6 +36,8 @@ class DeleteDirectoryUser
             if ($currentUser->delete() !== true) {
                 throw new RuntimeException('No se pudo eliminar el usuario.');
             }
+
+            $this->audit->deleted($currentUser, $snapshot);
 
             return $pending;
         });

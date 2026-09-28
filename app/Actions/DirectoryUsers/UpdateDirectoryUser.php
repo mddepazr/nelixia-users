@@ -3,6 +3,7 @@
 namespace App\Actions\DirectoryUsers;
 
 use App\Models\DirectoryUser;
+use App\Services\DirectoryAudit;
 use App\Services\UserPhotoStorage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ class UpdateDirectoryUser
 {
     public function __construct(
         private readonly UserPhotoStorage $photos,
+        private readonly DirectoryAudit $audit,
     ) {}
 
     public function handle(
@@ -42,6 +44,7 @@ class UpdateDirectoryUser
                         ->lockForUpdate()
                         ->firstOrFail();
 
+                    $before = $this->audit->snapshot($currentUser);
                     $previousPhotoPath = $currentUser->photo_path;
 
                     $currentUser->fill([
@@ -56,6 +59,7 @@ class UpdateDirectoryUser
                     }
 
                     $currentUser->save();
+                    $this->audit->updated($currentUser, $before);
 
                     return [$currentUser, $previousPhotoPath];
                 },

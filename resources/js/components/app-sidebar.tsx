@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, Users } from 'lucide-react';
+import { History, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -13,6 +13,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as auditIndex } from '@/routes/directory-audit';
 import { index as directoryUsersIndex } from '@/routes/directory-users';
 import type { NavItem } from '@/types';
 
@@ -26,6 +27,11 @@ const mainNavItems: NavItem[] = [
         title: 'Usuarios',
         href: directoryUsersIndex(),
         icon: Users,
+    },
+    {
+        title: 'Historial',
+        href: auditIndex(),
+        icon: History,
     },
 ];
 

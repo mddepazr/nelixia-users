@@ -46,9 +46,6 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build frontend
-        run: npm run build
-
       - name: Run CI Checks
         run: composer ci:check
 

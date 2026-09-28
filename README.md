@@ -175,6 +175,14 @@ No es necesario editar `php.ini` para esa carpeta al iniciar con `composer dev`.
 
 Las cuentas de acceso al sistema y los registros del directorio son entidades distintas. Crear una persona en el directorio no crea automáticamente una cuenta para iniciar sesión.
 
+## Historial de cambios
+
+La opción **Historial** permite a los administradores buscar y filtrar creaciones, modificaciones y eliminaciones de usuarios del directorio. Desde «Editar usuario» se puede filtrar por ese registro. Cada evento muestra quién realizó la operación, cuándo ocurrió, el usuario afectado y, en las ediciones, los valores que cambiaron. Las fotografías se registran como cambio sin conservar la ruta privada ni el archivo en el historial. Los ejemplos cargados durante una instalación nueva figuran como «Instalación inicial».
+
+Las entradas se guardan dentro de la misma transacción que el cambio en SQLite. Permanecen después de eliminar el registro o la cuenta del administrador porque contienen copias de los nombres y correos correspondientes. No se pueden editar ni borrar desde la interfaz. Se registra la actividad a partir de la instalación de esta funcionalidad: no se inventa historial para cambios anteriores. La eliminación pendiente de un archivo en MinIO se gestiona por separado mediante `app:cleanup-user-photos`.
+
+El historial guarda las marcas de tiempo en UTC y muestra las fechas y aplica los filtros «Desde» y «Hasta» en el horario de Guatemala (`America/Guatemala`). Esto también convierte correctamente los eventos existentes sin modificar la base de datos.
+
 ## Recuperación de contraseña
 
 Desde el login, seleccionar «¿Olvidaste tu contraseña?» y utilizar el correo de una cuenta de acceso existente. Abrir http://127.0.0.1:8025 y seguir el enlace recibido.
@@ -191,7 +199,7 @@ Desde otra terminal en la raíz del proyecto:
 composer ci:check
 ```
 
-Regenera primero las rutas TypeScript de Wayfinder. Incluye formato y lint del frontend, TypeScript, Pint, PHPStan y pruebas automatizadas. Las pruebas Feature utilizan SQLite en memoria y `RefreshDatabase`; las pruebas de fotografías usan almacenamiento simulado. Complementar con el recorrido manual contra MinIO real.
+Regenera primero las rutas TypeScript de Wayfinder. Incluye formato y lint del frontend, TypeScript, compilación de Vite, Pint, PHPStan y pruebas automatizadas. La compilación actualiza el manifiesto de páginas antes de ejecutar las pruebas HTTP, incluso después de cambiar de rama. Las pruebas Feature utilizan SQLite en memoria y `RefreshDatabase`; las pruebas de fotografías usan almacenamiento simulado. Complementar con el recorrido manual contra MinIO real.
 
 Comprobación de los scripts de instalación:
 
@@ -225,10 +233,12 @@ Que se informe «Fotografías eliminadas: 0» puede significar que no había tra
 - `app/Http/Requests/`: validación y autorización de solicitudes.
 - `app/Actions/DirectoryUsers/`: creación, actualización y eliminación de registros.
 - `app/Services/`: almacenamiento y limpieza de fotografías.
+- `app/Services/DirectoryAudit.php`: registro transaccional de eventos del directorio.
 - `app/Models/` y `database/migrations/`: entidades, relaciones y esquema relacional.
 - `database/seeders/CatalogSeeder.php`: empresas y departamentos iniciales.
 - `database/seeders/DemoDirectoryUserSeeder.php` y `database/seeders/photos/`: ejemplos ficticios y sus retratos.
 - `resources/js/pages/directory-users/`: listado, creación y edición.
+- `resources/js/pages/directory-audit/`: historial filtrable para administradores.
 - `resources/js/components/`: formulario compartido, recorte y confirmación de eliminación.
 - `tests/Feature/`: pruebas de permisos, validación, autenticación y operaciones del directorio.
 - `scripts/`: instalación y arranque local.
