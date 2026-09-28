@@ -1,15 +1,16 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectoryUserController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:access-admin'])->group(function () {
     Route::get('/', function (): RedirectResponse {
-        return to_route('directory-users.index');
+        return to_route('dashboard');
     })->name('home');
 
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('users', [DirectoryUserController::class, 'index'])
         ->name('directory-users.index');
