@@ -8,10 +8,10 @@ use RuntimeException;
 
 class UserPhotoStorage
 {
-    public function store(UploadedFile $photo): string
+    public function store(UploadedFile $photo, string $directory = 'user-photos'): string
     {
         $path = Storage::disk('s3')->putFile(
-            'user-photos',
+            $directory,
             $photo,
             ['visibility' => 'private'],
         );

@@ -6,6 +6,7 @@ import PhotoCropper from '@/components/photo-cropper';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { readPhoto } from '@/lib/read-photo';
 import { index, store, update } from '@/routes/directory-users';
 
 export type DirectoryUserData = {
@@ -44,27 +45,6 @@ const textFields = [
         maxLength: 254,
     },
 ] as const;
-
-function readPhoto(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            if (typeof reader.result === 'string') {
-                resolve(reader.result);
-            } else {
-                reject(new Error('No se pudo leer la fotografía.'));
-            }
-        };
-
-        reader.onerror = () =>
-            reject(new Error('No se pudo leer la fotografía.'));
-
-        reader.onabort = () => reject(new Error('La lectura fue cancelada.'));
-
-        reader.readAsDataURL(file);
-    });
-}
 
 export default function DirectoryUserForm({
     companies,

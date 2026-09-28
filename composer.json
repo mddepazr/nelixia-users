@@ -64,6 +64,8 @@
         ],
         "ci:check": [
             "Composer\\Config::disableProcessTimeout",
+            "@php artisan route:clear --ansi",
+            "@php artisan wayfinder:generate --with-form",
             "npm run check",
             "npm run types:check",
             "@test"
