@@ -88,6 +88,10 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        // Laravel actualiza el token de "recordarme" al cerrar sesión. Hacerlo
+        // después del borrado volvería a guardar una cuenta ya eliminada.
+        Auth::logout();
+
         $pending = DB::transaction(function () use ($user): ?PendingPhotoDeletion {
             $avatarPath = $user->avatar_path;
             $pending = $avatarPath !== null
@@ -100,8 +104,6 @@ class ProfileController extends Controller
 
             return $pending;
         });
-
-        Auth::logout();
 
         if ($pending !== null) {
             $cleanup->attempt($pending);

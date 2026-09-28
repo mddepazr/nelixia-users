@@ -46,6 +46,10 @@ class UpdateProfilePhoto
             throw $exception;
         }
 
+        // La sesión puede conservar la instancia que recibió la petición.
+        // Refrescarla permite compartir el nuevo avatar en la respuesta.
+        $user->refresh();
+
         if ($pending !== null) {
             $this->cleanup->attempt($pending);
         }
