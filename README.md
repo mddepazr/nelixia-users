@@ -7,7 +7,7 @@ Laravel se ejecuta en el equipo local. Docker ejecuta MinIO y Mailpit.
 ## Estado de verificación
 
 - Funcionalidad CRUD y permisos verificados mediante pruebas automatizadas y comprobaciones manuales.
-- En Ubuntu dentro de WSL 2 se completó una instalación desde cero con PHP 8.4.1, Node.js 24.21.0 y Docker Desktop. `composer ci:check` aprobó 56 pruebas con 272 aserciones; 3 pruebas se omitieron porque la autenticación de dos factores está desactivada.
+- En Ubuntu dentro de WSL 2 se completó una instalación desde cero con PHP 8.4.1, Node.js 24.21.0 y Docker Desktop. En Windows, la última ejecución compartida de `composer ci:check` aprobó 78 pruebas con 517 aserciones; 3 pruebas se omitieron porque la autenticación de dos factores está desactivada.
 - En otro equipo con Windows 11, `composer setup` y `composer dev` funcionaron después de mover el proyecto a una ruta sin caracteres no ASCII. El arranque local, MinIO y la compilación del frontend quedaron verificados.
 - En WSL 2 se comprobó manualmente la creación, edición y eliminación de usuarios, el recorte cuadrado de fotografías, su almacenamiento y limpieza en MinIO y la persistencia tras reiniciar. No se ha repetido la instalación en un Linux nativo fuera de WSL.
 
@@ -25,15 +25,19 @@ Laravel se ejecuta en el equipo local. Docker ejecuta MinIO y Mailpit.
 
 El proyecto declara PHP `^8.3` para la aplicación, pero la instalación incluye dependencias de desarrollo que requieren PHP 8.4. `composer install` verifica las restricciones exactas de `composer.lock`. No usar `--ignore-platform-reqs`.
 
+Descargas oficiales para Windows: [Git](https://git-scm.com/install/windows), [Laravel Herd](https://herd.laravel.com/windows) para PHP 8.4 y Composer, [Node.js 24](https://nodejs.org/en/download) si `node` o `npm` no están disponibles con Herd, y [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/). Abrir una terminal nueva después de instalar para que detecte las herramientas. En Linux, consultar las instrucciones de [Laravel para PHP y Composer](https://laravel.com/docs/13.x/installation), [Node.js](https://nodejs.org/en/download) y [Docker Engine](https://docs.docker.com/engine/install/) para la distribución utilizada.
+
 PHP debe disponer de las extensiones requeridas por Laravel y las dependencias: Ctype, cURL, DOM, Fileinfo, Filter, Hash, Mbstring, OpenSSL, PCRE, PDO, Session, Tokenizer, XML y PDO SQLite. Para las pruebas con imágenes, habilitar GD. Para descargar archivos comprimidos, disponer de ZIP o de una herramienta de descompresión compatible con Composer. El instalador comprueba expresamente PDO SQLite, cURL, Mbstring, Fileinfo y OpenSSL; Composer valida los requisitos declarados por los paquetes.
 
 Comprobación inicial:
 
 ```sh
+git --version
 php -v
 php -m
 composer --version
 node --version
+npm --version
 docker compose version
 docker info
 ```
@@ -65,12 +69,16 @@ El instalador comprueba la ruta antes de comenzar.
 En Linux, desde una terminal:
 
 ```sh
+mkdir -p "$HOME/projects"
+cd "$HOME/projects"
 git clone https://github.com/mddepazr/nelixia-users.git
 cd nelixia-users
 composer setup
 php artisan app:create-admin
 composer dev
 ```
+
+En WSL, usar una carpeta bajo `$HOME` de Linux (como en el ejemplo), en lugar de `/mnt/c/Users/...`. Docker Desktop debe estar iniciado y su integración con la distribución WSL habilitada; `docker info` debe funcionar desde esa terminal antes de comenzar.
 
 El comando anterior clona `main`, que contiene el instalador y esta guía.
 
@@ -239,7 +247,7 @@ Que se informe «Fotografías eliminadas: 0» puede significar que no había tra
 - `app/Models/` y `database/migrations/`: entidades, relaciones y esquema relacional.
 - `database/seeders/CatalogSeeder.php`: empresas y departamentos iniciales.
 - `database/seeders/DemoDirectoryUserSeeder.php` y `database/seeders/photos/`: ejemplos ficticios y sus retratos.
-- `resources/js/pages/directory-users/`: listado, creación y edición.
+- `resources/js/pages/directory-users/`: listado, perfil, creación y edición.
 - `resources/js/pages/directory-audit/`: historial filtrable para administradores.
 - `resources/js/components/`: formulario compartido, recorte y confirmación de eliminación.
 - `tests/Feature/`: pruebas de permisos, validación, autenticación y operaciones del directorio.
