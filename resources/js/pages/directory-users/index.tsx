@@ -287,7 +287,7 @@ export default function DirectoryUsers({
                                             <td className="px-4 py-3 font-medium">
                                                 <Link
                                                     href={show(user.id)}
-                                                    className="hover:text-primary hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                                                    className="hover:text-primary focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                                                 >
                                                     {user.full_name}
                                                 </Link>
