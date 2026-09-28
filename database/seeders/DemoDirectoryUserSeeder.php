@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Company;
 use App\Models\DirectoryUser;
+use App\Services\DirectoryAudit;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -66,10 +67,14 @@ class DemoDirectoryUserSeeder extends Seeder
 
             DB::transaction(function () use ($users): void {
                 foreach ($users as $attributes) {
-                    DirectoryUser::query()->firstOrCreate(
+                    $user = DirectoryUser::query()->firstOrCreate(
                         ['email' => $attributes['email']],
                         $attributes,
                     );
+
+                    if ($user->wasRecentlyCreated) {
+                        app(DirectoryAudit::class)->created($user);
+                    }
                 }
 
                 DB::table('demo_seed_runs')->insert([

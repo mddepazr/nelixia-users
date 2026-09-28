@@ -3,6 +3,7 @@
 namespace App\Actions\DirectoryUsers;
 
 use App\Models\DirectoryUser;
+use App\Services\DirectoryAudit;
 use App\Services\UserPhotoStorage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ class CreateDirectoryUser
 {
     public function __construct(
         private readonly UserPhotoStorage $photos,
+        private readonly DirectoryAudit $audit,
     ) {}
 
     public function handle(
@@ -25,13 +27,19 @@ class CreateDirectoryUser
         $path = $this->photos->store($photo);
 
         try {
-            return DB::transaction(fn (): DirectoryUser => DirectoryUser::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $email,
-                'department_id' => $departmentId,
-                'photo_path' => $path,
-            ]));
+            return DB::transaction(function () use ($firstName, $lastName, $email, $departmentId, $path): DirectoryUser {
+                $user = DirectoryUser::create([
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'department_id' => $departmentId,
+                    'photo_path' => $path,
+                ]);
+
+                $this->audit->created($user);
+
+                return $user;
+            });
         } catch (Throwable $exception) {
             // La transacción de la base de datos no revierte archivos en MinIO.
             try {

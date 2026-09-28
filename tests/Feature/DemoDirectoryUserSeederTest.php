@@ -16,6 +16,12 @@ test('the demo seeder creates three directory users with square photos in s3', f
     expect(DirectoryUser::query()->count())->toBe(3);
     $this->assertDatabaseCount('users', 0);
     $this->assertDatabaseHas('demo_seed_runs', ['name' => 'directory-users']);
+    $this->assertDatabaseCount('directory_audit_entries', 3);
+    $this->assertDatabaseHas('directory_audit_entries', [
+        'action' => 'created',
+        'actor_user_id' => null,
+        'subject_email' => 'demo.ana@example.test',
+    ]);
 
     foreach (DirectoryUser::query()->get() as $user) {
         expect($user->email)->toEndWith('@example.test');
