@@ -162,9 +162,22 @@ try {
     }
 
     $database = $root.'/database/database.sqlite';
+    $newDatabase = ! is_file($database) || filesize($database) === 0;
 
     if (! is_file($database) && ! touch($database)) {
         throw new RuntimeException('No se pudo crear la base SQLite.');
+    }
+
+    // La señal sobrevive a un fallo posterior, para completar la instalación
+    // al repetir composer setup sin poblar bases que ya existían.
+    $demoSeedPending = $root.'/storage/app/demo-seed-pending';
+
+    if (
+        $newDatabase
+        && ! is_file($demoSeedPending)
+        && file_put_contents($demoSeedPending, '1', LOCK_EX) === false
+    ) {
+        throw new RuntimeException('No se pudo preparar los usuarios de muestra.');
     }
 
     echo PHP_EOL.'Iniciando MinIO y Mailpit...'.PHP_EOL;
@@ -253,6 +266,20 @@ try {
         '--class=Database\\Seeders\\CatalogSeeder',
         '--force',
     ]);
+
+    if (is_file($demoSeedPending)) {
+        runSetupProcess([
+            PHP_BINARY,
+            'artisan',
+            'db:seed',
+            '--class=Database\\Seeders\\DemoDirectoryUserSeeder',
+            '--force',
+        ]);
+
+        if (! unlink($demoSeedPending)) {
+            throw new RuntimeException('No se pudo completar la señal de instalación de muestra.');
+        }
+    }
 
     echo PHP_EOL.'Instalando y compilando el frontend...'.PHP_EOL;
 

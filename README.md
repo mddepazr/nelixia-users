@@ -85,7 +85,7 @@ Si el repositorio es privado, el evaluador necesita acceso mediante su propia cu
 5. Crea la carpeta temporal de cargas y el archivo SQLite si faltan.
 6. Compila MinIO Community desde su código fuente oficial, con la versión fijada en `docker/minio/Dockerfile`, y lo inicia junto con Mailpit mediante Docker Compose. El primer build puede tardar varios minutos; Docker reutiliza sus capas en instalaciones posteriores.
 7. Espera a MinIO, comprueba el bucket y lo crea si no existe.
-8. Limpia la caché de configuración, ejecuta migraciones pendientes y el catálogo inicial.
+8. Limpia la caché de configuración, ejecuta migraciones pendientes y el catálogo inicial. En una base nueva también carga tres registros de muestra y sus fotografías privadas en MinIO.
 9. Ejecuta `npm ci` y compila el frontend.
 10. Indica cómo crear el primer administrador si todavía no existe uno.
 
@@ -96,6 +96,8 @@ En una instalación nueva, ejecutá `php artisan app:create-admin` desde la term
 El instalador está limitado a `APP_ENV=local`, `DB_CONNECTION=sqlite`, `FILESYSTEM_DISK=s3` y `AWS_ENDPOINT=http://127.0.0.1:9000`. `DB_DATABASE` y `DB_URL` deben estar ausentes o vacíos. Las configuraciones personalizadas se conservan, pero requieren preparación manual.
 
 Volver a ejecutar `composer setup` reinstala las dependencias del frontend, compila y ejecuta las migraciones y el seeder. No utiliza `migrate:fresh`, no elimina volúmenes ni regenera una `APP_KEY` que ya tenga valor. Si falla un paso, se detiene; los pasos ya completados permanecen aplicados. Corregir la causa y repetir el comando.
+
+Los tres registros de muestra (Ana López, Carlos Méndez y Lucía Ramírez) usan correos `@example.test` y retratos generados de personas ficticias. Son **registros del directorio**, no cuentas para iniciar sesión. Se cargan automáticamente únicamente si `composer setup` comenzó con una base SQLite nueva. Si la instalación se interrumpe, el próximo intento completa la carga pendiente. La base conserva un registro de que ya se cargaron: una ejecución posterior no duplica los usuarios ni restaura uno que hayas eliminado. En una instalación existente no se agregan automáticamente; si deseás agregarlos, ejecutá `php artisan db:seed --class="Database\Seeders\DemoDirectoryUserSeeder"` con MinIO activo.
 
 MinIO ya no se descarga desde Quay. El build de Docker usa la imagen oficial `golang:1.24.6-alpine3.22`, obtiene el código fuente de MinIO en la versión `RELEASE.2025-09-07T16-13-09Z` y guarda el ejecutable en una imagen local. Requiere conexión a Docker Hub, Alpine y el repositorio de módulos Go durante la primera compilación. `composer dev` utiliza la imagen ya compilada por `composer setup`.
 
@@ -160,6 +162,7 @@ No es necesario editar `php.ini` para esa carpeta al iniciar con `composer dev`.
 ## Recorrido de evaluación
 
 1. Abrir la aplicación e iniciar sesión con el administrador creado durante la instalación.
+   En una instalación nueva, comprobar que ya aparecen los tres usuarios de muestra con foto.
 2. Entrar a Usuarios y crear un registro, seleccionando empresa y departamento.
 3. Cargar una fotografía, mover y ajustar el recorte, confirmarlo y guardar.
 4. Verificar que la fotografía y los datos aparecen en el listado.
@@ -224,6 +227,7 @@ Que se informe «Fotografías eliminadas: 0» puede significar que no había tra
 - `app/Services/`: almacenamiento y limpieza de fotografías.
 - `app/Models/` y `database/migrations/`: entidades, relaciones y esquema relacional.
 - `database/seeders/CatalogSeeder.php`: empresas y departamentos iniciales.
+- `database/seeders/DemoDirectoryUserSeeder.php` y `database/seeders/photos/`: ejemplos ficticios y sus retratos.
 - `resources/js/pages/directory-users/`: listado, creación y edición.
 - `resources/js/components/`: formulario compartido, recorte y confirmación de eliminación.
 - `tests/Feature/`: pruebas de permisos, validación, autenticación y operaciones del directorio.
@@ -259,6 +263,6 @@ Los registros de Laravel se encuentran en `storage/logs`. Pueden contener datos 
 
 ## Alcance
 
-Esta configuración está destinada a la evaluación y desarrollo local. No incluye despliegue público ni endurecimiento de un entorno de producción. El logo actual puede ser provisional hasta recibir el recurso oficial.
+Esta configuración está destinada a la evaluación y desarrollo local. No incluye despliegue público ni endurecimiento de un entorno de producción.
 
 Referencias: [Laravel](https://laravel.com/docs/13.x), [requisitos de Pest](https://pestphp.com/docs/installation), [servidor local PHP](https://www.php.net/commandline.webserver).
