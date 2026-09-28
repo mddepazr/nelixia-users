@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\DirectoryUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DirectoryUserController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
