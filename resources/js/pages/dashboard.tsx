@@ -102,7 +102,7 @@ export default function Dashboard({ stats, recentUsers }: Props) {
                                     <li key={user.id}>
                                         <Link
                                             href={show(user.id)}
-                                            className="flex items-center gap-3 py-3 hover:text-primary focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                                            className="flex items-center gap-3 py-3 transition-colors duration-200 hover:text-primary focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                                         >
                                             <img
                                                 src={user.photo_url}

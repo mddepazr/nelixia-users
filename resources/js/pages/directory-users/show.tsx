@@ -89,12 +89,9 @@ export default function ShowDirectoryUser({
                                     <p className="text-sm text-muted-foreground">
                                         Correo electrónico
                                     </p>
-                                    <a
-                                        href={`mailto:${user.email}`}
-                                        className="font-medium break-all text-primary hover:underline"
-                                    >
+                                    <p className="font-medium break-all">
                                         {user.email}
-                                    </a>
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
