@@ -188,7 +188,7 @@ Desde otra terminal en la raíz del proyecto:
 composer ci:check
 ```
 
-Incluye formato y lint del frontend, TypeScript, Pint, PHPStan y pruebas automatizadas. Las pruebas Feature utilizan SQLite en memoria y `RefreshDatabase`; las pruebas de fotografías usan almacenamiento simulado. Complementar con el recorrido manual contra MinIO real.
+Regenera primero las rutas TypeScript de Wayfinder. Incluye formato y lint del frontend, TypeScript, Pint, PHPStan y pruebas automatizadas. Las pruebas Feature utilizan SQLite en memoria y `RefreshDatabase`; las pruebas de fotografías usan almacenamiento simulado. Complementar con el recorrido manual contra MinIO real.
 
 Comprobación de los scripts de instalación:
 
