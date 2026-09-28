@@ -175,6 +175,8 @@ No es necesario editar `php.ini` para esa carpeta al iniciar con `composer dev`.
 
 Las cuentas de acceso al sistema y los registros del directorio son entidades distintas. Crear una persona en el directorio no crea automáticamente una cuenta para iniciar sesión.
 
+Al seleccionar el nombre de una persona en el listado o en «Usuarios recientes» se abre su perfil con fotografía, datos de contacto y ubicación organizacional, fechas de registro y actualización, y accesos a edición e historial. El perfil sólo es accesible a administradores.
+
 ## Historial de cambios
 
 La opción **Historial** permite a los administradores buscar y filtrar creaciones, modificaciones y eliminaciones de usuarios del directorio. Desde «Editar usuario» se puede filtrar por ese registro. Cada evento muestra quién realizó la operación, cuándo ocurrió, el usuario afectado y, en las ediciones, los valores que cambiaron. Las fotografías se registran como cambio sin conservar la ruta privada ni el archivo en el historial. Los ejemplos cargados durante una instalación nueva figuran como «Instalación inicial».

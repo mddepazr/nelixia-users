@@ -5,7 +5,7 @@ import DeleteDirectoryUser from '@/components/delete-directory-user';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { create, edit, index } from '@/routes/directory-users';
+import { create, edit, index, show } from '@/routes/directory-users';
 
 type DirectoryUser = {
     id: number;
@@ -285,7 +285,12 @@ export default function DirectoryUsers({
                                                 />
                                             </td>
                                             <td className="px-4 py-3 font-medium">
-                                                {user.full_name}
+                                                <Link
+                                                    href={show(user.id)}
+                                                    className="hover:text-primary focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                                                >
+                                                    {user.full_name}
+                                                </Link>
                                             </td>
                                             <td className="px-4 py-3">
                                                 {user.email}

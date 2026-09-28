@@ -90,6 +90,32 @@ class DirectoryUserController extends Controller
         ]);
     }
 
+    public function show(DirectoryUser $directoryUser): Response
+    {
+        $directoryUser->load('department.company');
+
+        return Inertia::render('directory-users/show', [
+            'directoryUser' => [
+                'id' => $directoryUser->getKey(),
+                'first_name' => $directoryUser->first_name,
+                'last_name' => $directoryUser->last_name,
+                'email' => $directoryUser->email,
+                'company_name' => $directoryUser->department->company->name,
+                'department_name' => $directoryUser->department->name,
+                'photo_url' => Storage::disk('s3')->temporaryUrl(
+                    $directoryUser->photo_path,
+                    now()->addMinutes(15),
+                ),
+                'created_at' => $directoryUser->created_at
+                    ->setTimezone('America/Guatemala')
+                    ->format('d/m/Y H:i'),
+                'updated_at' => $directoryUser->updated_at
+                    ->setTimezone('America/Guatemala')
+                    ->format('d/m/Y H:i'),
+            ],
+        ]);
+    }
+
     public function store(
         StoreDirectoryUserRequest $request,
         CreateDirectoryUser $createUser,
