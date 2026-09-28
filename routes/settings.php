@@ -9,6 +9,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::post('settings/profile/photo', [ProfileController::class, 'updatePhoto'])
+        ->middleware(['verified', 'can:access-admin'])
+        ->name('profile.photo.update');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

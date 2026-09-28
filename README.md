@@ -151,6 +151,8 @@ Un clon nuevo crea una instalación independiente: no copia usuarios, fotografí
 
 La interfaz permite seleccionar JPG, PNG o WebP, recortar a proporción 1:1 y confirmar el resultado. El formulario trabaja con una imagen final de 512 × 512 y un máximo de 2 MB. El límite de selección de la imagen original en la interfaz es 10 MB.
 
+La cuenta de administrador puede añadir o reemplazar su foto desde **Configuración → Perfil**. El recorte usa las mismas reglas que el directorio, pero se guarda por separado en `account-photos/` dentro del bucket privado. Al reemplazarla o eliminar la cuenta, la foto anterior se limpia; si MinIO no responde, `php artisan app:cleanup-user-photos` permite reintentar la limpieza.
+
 `scripts/serve.php` crea `storage/app/php-uploads` y configura el proceso PHP con `upload_tmp_dir` apuntando a esa carpeta, `upload_max_filesize=12M` y `post_max_size=16M`. Estos límites de transporte no cambian las validaciones de la aplicación.
 
 No es necesario editar `php.ini` para esa carpeta al iniciar con `composer dev`. Si se usa Herd, Apache o `php artisan serve` directamente, se estará usando otro mecanismo de arranque y habrá que revisar su configuración PHP por separado. Las cargas temporales no sustituyen el almacenamiento definitivo en MinIO.
@@ -166,6 +168,7 @@ No es necesario editar `php.ini` para esa carpeta al iniciar con `composer dev`.
 7. Probar un correo duplicado y verificar el mensaje de validación.
 8. Eliminar un registro y comprobar el aviso de resultado.
 9. Probar recuperación de contraseña y abrir el mensaje en Mailpit.
+10. Desde Configuración → Perfil, subir y confirmar una foto de la cuenta; comprobar que aparece en el menú, reemplazarla y verificar que la anterior se elimina de MinIO.
 
 Las cuentas de acceso al sistema y los registros del directorio son entidades distintas. Crear una persona en el directorio no crea automáticamente una cuenta para iniciar sesión.
 
