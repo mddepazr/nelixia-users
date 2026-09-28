@@ -20,6 +20,7 @@ type Entry = {
     subject_department: string;
     changes: Record<string, Change> | null;
     created_at: string;
+    created_at_local: string;
 };
 
 type Filters = {
@@ -197,10 +198,7 @@ export default function DirectoryAuditIndex({ entries, filters }: Props) {
                                             dateTime={entry.created_at}
                                             className="text-sm text-muted-foreground"
                                         >
-                                            {entry.created_at
-                                                .slice(0, 16)
-                                                .replace('T', ' ')}{' '}
-                                            UTC
+                                            {entry.created_at_local} (Guatemala)
                                         </time>
                                     </div>
                                     <p className="mt-3 text-sm">

@@ -181,6 +181,8 @@ La opción **Historial** permite a los administradores buscar y filtrar creacion
 
 Las entradas se guardan dentro de la misma transacción que el cambio en SQLite. Permanecen después de eliminar el registro o la cuenta del administrador porque contienen copias de los nombres y correos correspondientes. No se pueden editar ni borrar desde la interfaz. Se registra la actividad a partir de la instalación de esta funcionalidad: no se inventa historial para cambios anteriores. La eliminación pendiente de un archivo en MinIO se gestiona por separado mediante `app:cleanup-user-photos`.
 
+El historial guarda las marcas de tiempo en UTC y muestra las fechas y aplica los filtros «Desde» y «Hasta» en el horario de Guatemala (`America/Guatemala`). Esto también convierte correctamente los eventos existentes sin modificar la base de datos.
+
 ## Recuperación de contraseña
 
 Desde el login, seleccionar «¿Olvidaste tu contraseña?» y utilizar el correo de una cuenta de acceso existente. Abrir http://127.0.0.1:8025 y seguir el enlace recibido.

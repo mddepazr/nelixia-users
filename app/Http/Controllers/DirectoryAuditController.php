@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DirectoryAuditEntry;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class DirectoryAuditController extends Controller
 {
+    private const DISPLAY_TIMEZONE = 'America/Guatemala';
+
     public function __invoke(Request $request): Response
     {
         $validated = $request->validate([
@@ -49,11 +52,20 @@ class DirectoryAuditController extends Controller
         }
 
         if ($from !== '') {
-            $query->whereDate('created_at', '>=', $from);
+            $fromUtc = CarbonImmutable::parse($from, self::DISPLAY_TIMEZONE)
+                ->startOfDay()
+                ->utc();
+
+            $query->where('created_at', '>=', $fromUtc->format('Y-m-d H:i:s'));
         }
 
         if ($to !== '') {
-            $query->whereDate('created_at', '<=', $to);
+            $untilUtc = CarbonImmutable::parse($to, self::DISPLAY_TIMEZONE)
+                ->addDay()
+                ->startOfDay()
+                ->utc();
+
+            $query->where('created_at', '<', $untilUtc->format('Y-m-d H:i:s'));
         }
 
         if ($directoryUserId > 0) {
@@ -77,6 +89,9 @@ class DirectoryAuditController extends Controller
                 'subject_department' => $entry->subject_department,
                 'changes' => $entry->changes,
                 'created_at' => $entry->created_at->toIso8601String(),
+                'created_at_local' => $entry->created_at
+                    ->setTimezone(self::DISPLAY_TIMEZONE)
+                    ->format('d/m/Y H:i'),
             ]);
 
         return Inertia::render('directory-audit/index', [

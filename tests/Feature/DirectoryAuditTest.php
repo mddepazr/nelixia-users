@@ -4,6 +4,7 @@ use App\Models\Company;
 use App\Models\DirectoryAuditEntry;
 use App\Models\DirectoryUser;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -131,6 +132,48 @@ test('only administrators can read history and filter it after user deletion', f
     $this->actingAs(User::factory()->create(['is_admin' => false]))
         ->get(route('directory-audit.index'))
         ->assertForbidden();
+});
+
+test('history displays and filters the calendar day in Guatemala', function () {
+    $user = createAuditedDirectoryUser($this, $this->admin, $this->company->id, $this->department->id);
+
+    $first = DirectoryAuditEntry::query()->sole();
+    $first->forceFill([
+        'created_at' => CarbonImmutable::parse('2026-09-28 05:59:00', 'UTC'),
+    ])->save();
+
+    $this->actingAs($this->admin)
+        ->patch(route('directory-users.update', $user), [
+            'first_name' => 'Ana',
+            'last_name' => 'Morales',
+            'email' => 'ana@example.test',
+            'company_id' => $this->company->id,
+            'department_id' => $this->department->id,
+        ])
+        ->assertSessionHasNoErrors();
+
+    $second = DirectoryAuditEntry::query()->where('action', 'updated')->sole();
+    $second->forceFill([
+        'created_at' => CarbonImmutable::parse('2026-09-28 06:00:00', 'UTC'),
+    ])->save();
+
+    $this->get(route('directory-audit.index', [
+        'from' => '2026-09-27',
+        'to' => '2026-09-27',
+    ]))->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->has('entries.data', 1)
+        ->where('entries.data.0.action', 'created')
+        ->where('entries.data.0.created_at_local', '27/09/2026 23:59')
+    );
+
+    $this->get(route('directory-audit.index', [
+        'from' => '2026-09-28',
+        'to' => '2026-09-28',
+    ]))->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->has('entries.data', 1)
+        ->where('entries.data.0.action', 'updated')
+        ->where('entries.data.0.created_at_local', '28/09/2026 00:00')
+    );
 });
 
 test('an audit write failure rolls back the user and cleans up the uploaded photo', function () {
