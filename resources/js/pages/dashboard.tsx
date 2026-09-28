@@ -9,7 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { dashboard } from '@/routes';
-import { create, edit, index } from '@/routes/directory-users';
+import { create, index, show } from '@/routes/directory-users';
 
 type RecentUser = {
     id: number;
@@ -101,7 +101,7 @@ export default function Dashboard({ stats, recentUsers }: Props) {
                                 {recentUsers.map((user) => (
                                     <li key={user.id}>
                                         <Link
-                                            href={edit(user.id)}
+                                            href={show(user.id)}
                                             className="flex items-center gap-3 py-3 hover:text-primary focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                                         >
                                             <img

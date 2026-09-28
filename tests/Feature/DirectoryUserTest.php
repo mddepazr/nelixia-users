@@ -92,6 +92,41 @@ test('administrators can view directory pages', function (
     'formulario' => ['directory-users.create', 'directory-users/create'],
 ]);
 
+test('only administrators can view a directory user profile', function () {
+    $directoryUser = DirectoryUser::create([
+        'first_name' => 'Ana',
+        'last_name' => 'Morales',
+        'email' => 'ana@example.test',
+        'department_id' => $this->department->id,
+        'photo_path' => 'user-photos/ana.jpg',
+    ]);
+
+    $this->get(route('directory-users.show', $directoryUser))
+        ->assertRedirect(route('login'));
+
+    $this->actingAs(User::factory()->create(['is_admin' => false]))
+        ->get(route('directory-users.show', $directoryUser))
+        ->assertForbidden();
+
+    $this->actingAs(User::factory()->create(['is_admin' => true]))
+        ->get(route('directory-users.show', $directoryUser))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('directory-users/show')
+            ->where('directoryUser.first_name', 'Ana')
+            ->where('directoryUser.last_name', 'Morales')
+            ->where('directoryUser.email', 'ana@example.test')
+            ->where('directoryUser.company_name', 'Empresa de prueba')
+            ->where('directoryUser.department_name', 'Tecnología')
+            ->has('directoryUser.photo_url')
+            ->has('directoryUser.created_at')
+            ->has('directoryUser.updated_at')
+        );
+
+    $this->get(route('directory-users.show', $directoryUser->id + 100))
+        ->assertNotFound();
+});
+
 test('administrators can create a directory user with a photo', function () {
     $admin = User::factory()->create([
         'is_admin' => true,

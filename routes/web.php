@@ -25,6 +25,9 @@ Route::middleware(['auth', 'verified', 'can:access-admin'])->group(function () {
     Route::get('users/create', [DirectoryUserController::class, 'create'])
         ->name('directory-users.create');
 
+    Route::get('users/{directoryUser}', [DirectoryUserController::class, 'show'])
+        ->name('directory-users.show');
+
     Route::get('users/{directoryUser}/edit', [DirectoryUserController::class, 'edit'])
         ->name('directory-users.edit');
 
